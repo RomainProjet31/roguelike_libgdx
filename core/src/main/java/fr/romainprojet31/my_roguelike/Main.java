@@ -18,7 +18,6 @@ import fr.romainprojet31.my_roguelike.managers.MapManager;
  */
 public class Main extends ApplicationAdapter {
     public static final Vector2 SCREEN_SIZE = new Vector2(64 * 10, 64 * 8);
-    private ShapeRenderer shapeR;
     private SpriteBatch batch;
     private MapConfig map;
     private Player player;
@@ -26,11 +25,11 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        shapeR = new ShapeRenderer();
         map = MapManager.generateMap((int) SCREEN_SIZE.x, (int) SCREEN_SIZE.y, Side.TOP);
         player = new Player((int) map.getPlayerPos().x, (int) map.getPlayerPos().y);
         camera = new OrthographicCamera();
+        batch = new SpriteBatch();
+
         camera.setToOrtho(false, SCREEN_SIZE.x, SCREEN_SIZE.y);
 
     }
@@ -42,6 +41,7 @@ public class Main extends ApplicationAdapter {
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+
         batch.begin();
         map.getBlocks().forEach(block -> block.render(batch));
         map.getRoad().forEach(road -> road.render(batch));
@@ -52,14 +52,19 @@ public class Main extends ApplicationAdapter {
     }
 
     private void update() {
-        if (Gdx.input.isKeyPressed(Input.Keys.R) || map.getEnd().isOpened()) {
+        boolean isMapEnded = map.getEnd().isOpened() && !player.isSuccessAnimation();
+        if (Gdx.input.isKeyPressed(Input.Keys.R) || isMapEnded) {
             map = MapManager.generateMap(64 * 10, 64 * 8, Side.pickOne());
             player.setPosition(map.getPlayerPos().x, map.getPlayerPos().y);
         } else if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             dispose();
         }
         player.update(map.getBlocks());
+        boolean wasOpened = map.getEnd().isOpened();
         map.getEnd().update(player);
+        if (map.getEnd().isOpened() && !wasOpened) {
+            player.setSuccessAnimation(true);
+        }
     }
 
     @Override

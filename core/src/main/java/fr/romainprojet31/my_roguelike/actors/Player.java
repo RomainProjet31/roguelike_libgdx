@@ -6,20 +6,32 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import fr.romainprojet31.my_roguelike.Main;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class Player extends CustomSprite {
     private static final String SPRITE_SHEET = "RezIDLE.jpg";
     private static final int PLAYER_SIZE = 32;
     private static final int PLAYER_SPEED = 4;
+
+    private float timeSuccessAnimation;
+    private boolean successAnimation;
     private final Vector2 velocity;
+    private float lastFrameUpdate;
     private final Sword sword;
+    private int yOffset;
 
     public Player(int x, int y) {
         super(SPRITE_SHEET, new Rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE), 3, 1, new Vector2(x, y));
         velocity = new Vector2();
+        successAnimation = false;
+        lastFrameUpdate = 0;
         sword = new Sword();
+        yOffset = 5;
     }
 
     public void update(List<Block> blocks) {
@@ -28,6 +40,21 @@ public class Player extends CustomSprite {
         handleKeyboardAndAnimation();
         handleCollision(blocks);
         setPosition(getX() + velocity.x * PLAYER_SPEED, getY() + velocity.y * PLAYER_SPEED);
+        // Its success animation
+        if (successAnimation && lastFrameUpdate > 0.5f) {
+            lastFrameUpdate = 0;
+            yOffset *= -1;
+            setY(getY() + yOffset);
+            System.out.println(timeSuccessAnimation);
+            if (timeSuccessAnimation >= 2f) {
+                timeSuccessAnimation = 0;
+                successAnimation = false;
+            }
+        } else if (successAnimation) {
+            lastFrameUpdate += Gdx.graphics.getDeltaTime();
+            timeSuccessAnimation += Gdx.graphics.getDeltaTime();
+            System.out.println(lastFrameUpdate + " " + timeSuccessAnimation);
+        }
         // Sword
         var pos = getBoundingRectangle().getCenter(new Vector2());
         sword.update(pos, PLAYER_SIZE);
@@ -52,12 +79,10 @@ public class Player extends CustomSprite {
         var myCenter = nextRect.getCenter(new Vector2());
 
         if (rectangle.overlaps(nextRect) || rectangle.overlaps(getBoundingRectangle())) {
-            if (centerR.y >= myCenter.y && velocity.y > 0 ||
-                centerR.y <= myCenter.y && velocity.y < 0) {
+            if (centerR.y >= myCenter.y && velocity.y > 0 || centerR.y <= myCenter.y && velocity.y < 0) {
                 velocity.y = 0;
             }
-            if (centerR.x <= myCenter.x && velocity.x < 0 ||
-                centerR.x >= myCenter.x && velocity.x > 0) {
+            if (centerR.x <= myCenter.x && velocity.x < 0 || centerR.x >= myCenter.x && velocity.x > 0) {
                 velocity.x = 0;
             }
         }
@@ -70,12 +95,10 @@ public class Player extends CustomSprite {
     }
 
     private void setInScreen() {
-        if (velocity.x < 0 && getX() < getWidth() / 2 ||
-            velocity.x > 0 && getX() + getWidth() + PLAYER_SPEED / 2.0 > Main.SCREEN_SIZE.x) {
+        if (velocity.x < 0 && getX() < getWidth() / 2 || velocity.x > 0 && getX() + getWidth() + PLAYER_SPEED / 2.0 > Main.SCREEN_SIZE.x) {
             velocity.x = 0;
         }
-        if (velocity.y < 0 && getY() < getHeight() / 2 ||
-            velocity.y > 0 && getY() + getHeight() + PLAYER_SPEED / 2.0 > Main.SCREEN_SIZE.y) {
+        if (velocity.y < 0 && getY() < getHeight() / 2 || velocity.y > 0 && getY() + getHeight() + PLAYER_SPEED / 2.0 > Main.SCREEN_SIZE.y) {
             velocity.y = 0;
         }
     }
