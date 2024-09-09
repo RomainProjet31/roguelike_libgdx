@@ -1,12 +1,14 @@
 package fr.romainprojet31.my_roguelike.managers;
 
-import com.badlogic.gdx.graphics.g3d.particles.values.PrimitiveSpawnShapeValue;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import fr.romainprojet31.my_roguelike.Map.MapConfig;
 import fr.romainprojet31.my_roguelike.actors.Block;
 import fr.romainprojet31.my_roguelike.actors.Door;
+import fr.romainprojet31.my_roguelike.actors.Player;
 import fr.romainprojet31.my_roguelike.actors.Road;
+import fr.romainprojet31.my_roguelike.actors.enemies.AEnemy;
+import fr.romainprojet31.my_roguelike.constants.EnemyTypes;
 import fr.romainprojet31.my_roguelike.constants.Side;
 import fr.romainprojet31.my_roguelike.exceptions.NoMoreSolutionException;
 
@@ -44,8 +46,26 @@ public class MapManager {
         Vector2 playerPos = grid[(int) startPos.y][(int) startPos.x].getPosition(new Vector2());
         Vector2 startMapPos = grid[(int) startPos.y][(int) startPos.x].getPosition(new Vector2());
         Vector2 endMapPos = grid[(int) endPos.y][(int) endPos.x].getPosition(new Vector2());
+        return new MapConfig(road, blocks, new Door(startMapPos), new Door(endMapPos), new Player(playerPos), generateEnemies(path, grid));
+    }
 
-        return new MapConfig(blocks, playerPos, road, new Door(startMapPos), new Door(endMapPos));
+    private static List<AEnemy> generateEnemies(List<Vector2> path, GridCell[][] grid) {
+        List<AEnemy> enemies = new ArrayList<>();
+        for (int i = 0; i < path.size() / 3; i++) {
+            int randIdx = -1;
+            Vector2 pos = null;
+            while (randIdx == -1) {
+                randIdx = random.nextInt(path.size() - 1) + 1;
+                int x = (int) path.get(randIdx).x;
+                int y = (int) path.get(randIdx).y;
+                pos = grid[y][x].getPosition(new Vector2());
+                if (enemies.stream().anyMatch(e -> e.getX() == x && e.getY() == y)) {
+                    randIdx = -1;
+                }
+            }
+            enemies.add(EnemyTypes.nextRandomInstance(pos));
+        }
+        return enemies;
     }
 
     private static Vector2 pickOnePos(Side side, GridCell[][] grid) {
@@ -122,7 +142,7 @@ public class MapManager {
             if (current != null) path.add(current);
         } while (current != null);
         path.add(endPos);
-        return path;
+        return path.size() > 2 ? path : null;
     }
 
     private static Vector2 next(GridCell[][] grid, Vector2 currentCell, Vector2 goalPos) throws NoMoreSolutionException {

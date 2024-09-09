@@ -8,14 +8,21 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@Getter
 public class CustomSprite extends Sprite {
+    protected static final long CUSTOM_SPRITE_FPS_ANIMATION = 100000000;
+    protected long fpsAnimation = 100000000;
+
     protected TextureRegion[] animationFrames;
     protected TextureRegion currentFrame;  // Frame courante à afficher
-    private float stateTime;  // Temps écoulé pour l'animation
     private int frameIndex;  // Index de la frame courante
-    private long lastFrameTime;  // Temps de la dernière mise à jour de la frame
+    private float stateTime;  // Temps écoulé pour l'animation
     private boolean paused;
+    private long lastFrameTime;  // Temps de la dernière mise à jour de la frame
 
     public CustomSprite(String filePath, Rectangle srcRect, int cols, int rows, Vector2 destPos) {
         super(new Texture(Gdx.files.internal(filePath)), (int) srcRect.x, (int) srcRect.y, (int) srcRect.width, (int) srcRect.height);
@@ -43,12 +50,19 @@ public class CustomSprite extends Sprite {
     public void update() {
         if (!paused) {
             stateTime += Gdx.graphics.getDeltaTime();
-            if (TimeUtils.nanoTime() - lastFrameTime > 100000000) {  // 100ms entre les frames
-                frameIndex = (frameIndex + 1) % animationFrames.length;
-                currentFrame = animationFrames[frameIndex];
+            if (TimeUtils.nanoTime() - lastFrameTime > fpsAnimation) {  // 100ms between frames
+                frameIndex = nextFrame();
                 lastFrameTime = TimeUtils.nanoTime();
+                currentFrame = animationFrames[frameIndex];
             }
         }
+    }
+
+    /**
+     * Encapsulated so children of CustomSprite can implement another kind of currentFrame implementation
+     */
+    protected int nextFrame() {
+        return (frameIndex + 1) % animationFrames.length;
     }
 
     public void render(SpriteBatch batch) {

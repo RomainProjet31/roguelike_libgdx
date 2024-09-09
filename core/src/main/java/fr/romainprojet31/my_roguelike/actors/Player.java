@@ -25,8 +25,8 @@ public class Player extends CustomSprite {
     private final Sword sword;
     private int yOffset;
 
-    public Player(int x, int y) {
-        super(SPRITE_SHEET, new Rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE), 3, 1, new Vector2(x, y));
+    public Player(Vector2 destPos) {
+        super(SPRITE_SHEET, new Rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE), 3, 1, destPos);
         velocity = new Vector2();
         successAnimation = false;
         lastFrameUpdate = 0;

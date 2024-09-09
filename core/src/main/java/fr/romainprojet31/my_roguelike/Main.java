@@ -20,13 +20,11 @@ public class Main extends ApplicationAdapter {
     public static final Vector2 SCREEN_SIZE = new Vector2(64 * 10, 64 * 8);
     private SpriteBatch batch;
     private MapConfig map;
-    private Player player;
     private OrthographicCamera camera;
 
     @Override
     public void create() {
         map = MapManager.generateMap((int) SCREEN_SIZE.x, (int) SCREEN_SIZE.y, Side.TOP);
-        player = new Player((int) map.getPlayerPos().x, (int) map.getPlayerPos().y);
         camera = new OrthographicCamera();
         batch = new SpriteBatch();
 
@@ -47,28 +45,35 @@ public class Main extends ApplicationAdapter {
         map.getRoad().forEach(road -> road.render(batch));
         map.getStart().render(batch);
         map.getEnd().render(batch);
-        player.render(batch);
+        map.getPlayer().render(batch);
+        map.getEnemies().forEach(mob -> mob.render(batch));
         batch.end();
-    }
-
-    private void update() {
-        boolean isMapEnded = map.getEnd().isOpened() && !player.isSuccessAnimation();
-        if (Gdx.input.isKeyPressed(Input.Keys.R) || isMapEnded) {
-            map = MapManager.generateMap(64 * 10, 64 * 8, Side.pickOne());
-            player.setPosition(map.getPlayerPos().x, map.getPlayerPos().y);
-        } else if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            dispose();
-        }
-        player.update(map.getBlocks());
-        boolean wasOpened = map.getEnd().isOpened();
-        map.getEnd().update(player);
-        if (map.getEnd().isOpened() && !wasOpened) {
-            player.setSuccessAnimation(true);
-        }
     }
 
     @Override
     public void dispose() {
         batch.dispose();
+    }
+
+    private void update() {
+        handleNewMap();
+        map.getPlayer().update(map.getBlocks());
+
+        boolean wasOpened = map.getEnd().isOpened();
+        map.getEnd().update(map.getPlayer());
+        if (map.getEnd().isOpened() && !wasOpened) {
+            map.getPlayer().setSuccessAnimation(true);
+        } else if (!map.getPlayer().isSuccessAnimation()) {
+            map.getEnemies().forEach(mob -> mob.update(map.getPlayer()));
+        }
+    }
+
+    private void handleNewMap() {
+        boolean isMapEnded = map.getEnd().isOpened() && !map.getPlayer().isSuccessAnimation();
+        if (Gdx.input.isKeyPressed(Input.Keys.R) || isMapEnded) {
+            map = MapManager.generateMap(64 * 10, 64 * 8, Side.pickOne());
+        } else if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            dispose();
+        }
     }
 }
