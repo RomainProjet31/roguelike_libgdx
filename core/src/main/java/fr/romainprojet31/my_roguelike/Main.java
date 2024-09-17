@@ -5,13 +5,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import fr.romainprojet31.my_roguelike.Map.MapConfig;
-import fr.romainprojet31.my_roguelike.actors.Player;
+import fr.romainprojet31.my_roguelike.actors.enemies.AEnemy;
 import fr.romainprojet31.my_roguelike.constants.Side;
 import fr.romainprojet31.my_roguelike.managers.MapManager;
+import fr.romainprojet31.my_roguelike.managers.SoundManager;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
@@ -53,6 +53,7 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
+        SoundManager.disposeInstance();
     }
 
     private void update() {
@@ -64,16 +65,17 @@ public class Main extends ApplicationAdapter {
         if (map.getEnd().isOpened() && !wasOpened) {
             map.getPlayer().setSuccessAnimation(true);
         } else if (!map.getPlayer().isSuccessAnimation()) {
-            map.getEnemies().forEach(mob -> mob.update(map.getPlayer()));
+            map.getEnemies().forEach(AEnemy::update);
         }
     }
 
     private void handleNewMap() {
         boolean isMapEnded = map.getEnd().isOpened() && !map.getPlayer().isSuccessAnimation();
         if (Gdx.input.isKeyPressed(Input.Keys.R) || isMapEnded) {
-            map = MapManager.generateMap(64 * 10, 64 * 8, Side.pickOne());
+            map = MapManager.generateMap(64 * 10, 64 * 8, map.getEnd().getSide());
         } else if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             dispose();
+            Gdx.app.exit();
         }
     }
 }

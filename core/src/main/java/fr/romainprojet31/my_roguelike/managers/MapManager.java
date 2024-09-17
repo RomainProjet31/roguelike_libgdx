@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 public class MapManager {
+    public static MapConfig MAP_CONFIG = null;
 
     private static final Random random = new Random();
 
@@ -46,7 +47,8 @@ public class MapManager {
         Vector2 playerPos = grid[(int) startPos.y][(int) startPos.x].getPosition(new Vector2());
         Vector2 startMapPos = grid[(int) startPos.y][(int) startPos.x].getPosition(new Vector2());
         Vector2 endMapPos = grid[(int) endPos.y][(int) endPos.x].getPosition(new Vector2());
-        return new MapConfig(road, blocks, new Door(startMapPos), new Door(endMapPos), new Player(playerPos), generateEnemies(path, grid));
+        MAP_CONFIG = new MapConfig(road, blocks, new Door(startMapPos), new Door(endMapPos), new Player(playerPos), generateEnemies(path, grid));
+        return MAP_CONFIG;
     }
 
     private static List<AEnemy> generateEnemies(List<Vector2> path, GridCell[][] grid) {

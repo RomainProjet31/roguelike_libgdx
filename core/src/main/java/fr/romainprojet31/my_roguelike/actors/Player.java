@@ -5,7 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import fr.romainprojet31.my_roguelike.Main;
+import fr.romainprojet31.my_roguelike.constants.SoundsNames;
+import fr.romainprojet31.my_roguelike.managers.SoundManager;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,44 +18,38 @@ public class Player extends CustomSprite {
     private static final String SPRITE_SHEET = "RezIDLE.jpg";
     private static final int PLAYER_SIZE = 32;
     private static final int PLAYER_SPEED = 4;
+    private static final int FULL_HP = 3;
 
+    private float lastFrameSuccessUpdate;
     private float timeSuccessAnimation;
     private boolean successAnimation;
-    private final Vector2 velocity;
-    private float lastFrameUpdate;
+    private float lastFrameHitUpdate;
+    private float timeHitAnimation;
+    private boolean hitAnimation;
     private final Sword sword;
     private int yOffset;
+    private int hp;
 
     public Player(Vector2 destPos) {
-        super(SPRITE_SHEET, new Rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE), 3, 1, destPos);
-        velocity = new Vector2();
+        super(SPRITE_SHEET, new Rectangle(0, 0, PLAYER_SIZE, PLAYER_SIZE), 3, 1, destPos, PLAYER_SPEED);
         successAnimation = false;
-        lastFrameUpdate = 0;
+        lastFrameSuccessUpdate = 0;
         sword = new Sword();
+        hp = FULL_HP;
         yOffset = 5;
     }
 
     public void update(List<Block> blocks) {
+        if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
+            SoundManager.play(SoundsNames.WIN);
+        }
         velocity.setZero();
         // Player itself
         handleKeyboardAndAnimation();
         handleCollision(blocks);
         setPosition(getX() + velocity.x * PLAYER_SPEED, getY() + velocity.y * PLAYER_SPEED);
-        // Its success animation
-        if (successAnimation && lastFrameUpdate > 0.5f) {
-            lastFrameUpdate = 0;
-            yOffset *= -1;
-            setY(getY() + yOffset);
-            System.out.println(timeSuccessAnimation);
-            if (timeSuccessAnimation >= 2f) {
-                timeSuccessAnimation = 0;
-                successAnimation = false;
-            }
-        } else if (successAnimation) {
-            lastFrameUpdate += Gdx.graphics.getDeltaTime();
-            timeSuccessAnimation += Gdx.graphics.getDeltaTime();
-            System.out.println(lastFrameUpdate + " " + timeSuccessAnimation);
-        }
+        animationManagement();
+
         // Sword
         var pos = getBoundingRectangle().getCenter(new Vector2());
         sword.update(pos, PLAYER_SIZE);
@@ -64,6 +59,55 @@ public class Player extends CustomSprite {
     public void render(SpriteBatch batch) {
         super.render(batch);
         sword.render(batch);
+    }
+
+    public void hit() {
+        if (!hitAnimation && alive) {
+            hp--;
+            if (hp <= 0) {
+                alive = false;
+            } else {
+                hitAnimation = true;
+                SoundManager.play(SoundsNames.HIT);
+            }
+        }
+    }
+
+    private void animationManagement() {
+        successAnimationManagement();
+        hitAnimationManagement();
+    }
+
+    private void successAnimationManagement() {
+        if (successAnimation && lastFrameSuccessUpdate > 0.5f) {
+            lastFrameSuccessUpdate = 0;
+            yOffset *= -1;
+            setY(getY() + yOffset);
+            if (timeSuccessAnimation >= 2f) {
+                successAnimation = false;
+                timeSuccessAnimation = 0;
+                lastFrameSuccessUpdate = 0;
+            }
+        } else if (successAnimation) {
+            lastFrameSuccessUpdate += Gdx.graphics.getDeltaTime();
+            timeSuccessAnimation += Gdx.graphics.getDeltaTime();
+        }
+    }
+
+    private void hitAnimationManagement() {
+        if (hitAnimation && lastFrameHitUpdate > 0.25f) {
+            setAlpha(getColor().a == 1 ? 0.3f : 1);
+            lastFrameHitUpdate = 0;
+            if (timeHitAnimation >= 2f) {
+                setAlpha(1);
+                hitAnimation = false;
+                lastFrameHitUpdate = 0;
+                timeHitAnimation = 0;
+            }
+        } else if (hitAnimation) {
+            lastFrameHitUpdate += Gdx.graphics.getDeltaTime();
+            timeHitAnimation += Gdx.graphics.getDeltaTime();
+        }
     }
 
     private void handleCollision(List<Block> blocks) {
@@ -92,15 +136,6 @@ public class Player extends CustomSprite {
         var nextPos = new Rectangle(getBoundingRectangle());
         nextPos.setPosition(getX() + velocity.x * PLAYER_SPEED, getY() + velocity.y * PLAYER_SPEED);
         return nextPos;
-    }
-
-    private void setInScreen() {
-        if (velocity.x < 0 && getX() < getWidth() / 2 || velocity.x > 0 && getX() + getWidth() + PLAYER_SPEED / 2.0 > Main.SCREEN_SIZE.x) {
-            velocity.x = 0;
-        }
-        if (velocity.y < 0 && getY() < getHeight() / 2 || velocity.y > 0 && getY() + getHeight() + PLAYER_SPEED / 2.0 > Main.SCREEN_SIZE.y) {
-            velocity.y = 0;
-        }
     }
 
     private void handleKeyboardAndAnimation() {

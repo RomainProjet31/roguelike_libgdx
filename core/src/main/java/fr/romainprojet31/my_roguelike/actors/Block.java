@@ -10,7 +10,7 @@ public class Block extends CustomSprite {
 
     public Block(int x, int y) {
         //super("RezIDLE.jpg", new Rectangle(x, y, BLOCK_SIZE, BLOCK_SIZE), 8, 5, new Vector2(x, y));
-        super("wall.jpg", new Rectangle(0, 0, BLOCK_SIZE, BLOCK_SIZE), 1, 1, new Vector2(x, y));
+        super("wall.jpg", new Rectangle(0, 0, BLOCK_SIZE, BLOCK_SIZE), 1, 1, new Vector2(x, y), 0);
     }
 
     @Override

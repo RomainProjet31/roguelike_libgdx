@@ -1,6 +1,7 @@
 package fr.romainprojet31.my_roguelike.actors;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
+import fr.romainprojet31.my_roguelike.Main;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,15 +21,23 @@ public class CustomSprite extends Sprite {
 
     protected TextureRegion[] animationFrames;
     protected TextureRegion currentFrame;  // Frame courante à afficher
+    protected Vector2 velocity;
+    protected int speed;
+    protected boolean alive;
+
     private int frameIndex;  // Index de la frame courante
     private float stateTime;  // Temps écoulé pour l'animation
     private boolean paused;
     private long lastFrameTime;  // Temps de la dernière mise à jour de la frame
 
-    public CustomSprite(String filePath, Rectangle srcRect, int cols, int rows, Vector2 destPos) {
+    public CustomSprite(String filePath, Rectangle srcRect, int cols, int rows, Vector2 destPos, int speed) {
         super(new Texture(Gdx.files.internal(filePath)), (int) srcRect.x, (int) srcRect.y, (int) srcRect.width, (int) srcRect.height);
         TextureRegion[][] tmpFrames = TextureRegion.split(getTexture(), getTexture().getWidth() / cols, getTexture().getHeight() / rows);
         animationFrames = new TextureRegion[cols * rows];
+        velocity = new Vector2();
+        this.speed = speed;
+        alive = true;
+
         int index = 0;
 
         // Convertir la matrice 2D en tableau 1D
@@ -66,7 +76,29 @@ public class CustomSprite extends Sprite {
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(currentFrame, getX(), getY(), getWidth(), getHeight());
+        if (alive) {
+            final Color lastBatchColor = batch.getColor();
+            batch.setColor(getColor());
+            batch.draw(currentFrame, getX(), getY(), getWidth(), getHeight());
+            batch.setColor(lastBatchColor);
+        }
+    }
+
+    public void setInScreen() {
+        if (isOutScreenX()) {
+            velocity.x = 0;
+        }
+        if (isOutScreenY()) {
+            velocity.y = 0;
+        }
+    }
+
+    public boolean isOutScreenX() {
+        return velocity.x < 0 && getX() < getWidth() / 2 || velocity.x > 0 && getX() + getWidth() + speed / 2.0 > Main.SCREEN_SIZE.x;
+    }
+
+    public boolean isOutScreenY() {
+        return velocity.y < 0 && getY() < getHeight() / 2 || velocity.y > 0 && getY() + getHeight() + speed / 2.0 > Main.SCREEN_SIZE.y;
     }
 
     public void setPaused(boolean paused) {
