@@ -12,6 +12,7 @@ import fr.romainprojet31.my_roguelike.actors.enemies.AEnemy;
 import fr.romainprojet31.my_roguelike.constants.Side;
 import fr.romainprojet31.my_roguelike.managers.MapManager;
 import fr.romainprojet31.my_roguelike.managers.SoundManager;
+import fr.romainprojet31.my_roguelike.ui.IUI;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
@@ -47,6 +48,7 @@ public class Main extends ApplicationAdapter {
         map.getEnd().render(batch);
         map.getPlayer().render(batch);
         map.getEnemies().forEach(mob -> mob.render(batch));
+        map.getUis().forEach(ui -> ui.render(batch));
         batch.end();
     }
 
@@ -67,6 +69,7 @@ public class Main extends ApplicationAdapter {
         } else if (!map.getPlayer().isSuccessAnimation()) {
             map.getEnemies().forEach(AEnemy::update);
         }
+        map.getUis().forEach(IUI::update);
     }
 
     private void handleNewMap() {

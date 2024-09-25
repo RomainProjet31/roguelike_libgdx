@@ -6,6 +6,7 @@ import fr.romainprojet31.my_roguelike.actors.Door;
 import fr.romainprojet31.my_roguelike.actors.Player;
 import fr.romainprojet31.my_roguelike.actors.Road;
 import fr.romainprojet31.my_roguelike.actors.enemies.AEnemy;
+import fr.romainprojet31.my_roguelike.ui.IUI;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,13 +25,16 @@ public class MapConfig {
     // Living sprites
     Player player;
     List<AEnemy> enemies;
+    // UIS
+    List<IUI> uis;
 
-    public MapConfig(List<Road> road, List<Block> blocks, Door start, Door end, Player player, List<AEnemy> enemies) {
+    public MapConfig(List<Road> road, List<Block> blocks, Door start, Door end, Player player, List<AEnemy> enemies, List<IUI> uis) {
         this.road = road;
         this.blocks = blocks;
         this.start = start;
         this.end = end;
         this.player = player;
         this.enemies = enemies;
+        this.uis = uis;
     }
 }

@@ -15,10 +15,10 @@ import java.util.List;
 @Getter
 @Setter
 public class Player extends CustomSprite {
-    private static final String SPRITE_SHEET = "RezIDLE.jpg";
+    public static final int FULL_HP = 3;
     private static final int PLAYER_SIZE = 32;
     private static final int PLAYER_SPEED = 4;
-    private static final int FULL_HP = 3;
+    private static final String SPRITE_SHEET = "RezIDLE.jpg";
 
     private float lastFrameSuccessUpdate;
     private float timeSuccessAnimation;

@@ -31,7 +31,7 @@ public class CustomSprite extends Sprite {
     private long lastFrameTime;  // Temps de la dernière mise à jour de la frame
 
     public CustomSprite(String filePath, Rectangle srcRect, int cols, int rows, Vector2 destPos, int speed) {
-        super(new Texture(Gdx.files.internal(filePath)), (int) srcRect.x, (int) srcRect.y, (int) srcRect.width, (int) srcRect.height);
+        super(loadTexture(filePath), (int) srcRect.x, (int) srcRect.y, (int) srcRect.width, (int) srcRect.height);
         TextureRegion[][] tmpFrames = TextureRegion.split(getTexture(), getTexture().getWidth() / cols, getTexture().getHeight() / rows);
         animationFrames = new TextureRegion[cols * rows];
         velocity = new Vector2();
@@ -54,7 +54,7 @@ public class CustomSprite extends Sprite {
     }
 
     public CustomSprite(String filePath) {
-        super(new Texture(Gdx.files.internal(filePath)));
+        super(loadTexture(filePath));
     }
 
     public void update() {
@@ -84,6 +84,10 @@ public class CustomSprite extends Sprite {
         }
     }
 
+    public void kill(){
+        alive = false;
+    }
+
     public void setInScreen() {
         if (isOutScreenX()) {
             velocity.x = 0;
@@ -103,5 +107,9 @@ public class CustomSprite extends Sprite {
 
     public void setPaused(boolean paused) {
         this.paused = paused;
+    }
+
+    private static Texture loadTexture(String spriteName) {
+        return new Texture(Gdx.files.internal("sprites/"+spriteName));
     }
 }
