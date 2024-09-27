@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import fr.romainprojet31.my_roguelike.constants.SoundsNames;
+import fr.romainprojet31.my_roguelike.managers.MapManager;
 import fr.romainprojet31.my_roguelike.managers.SoundManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,14 +40,14 @@ public class Player extends CustomSprite {
         yOffset = 5;
     }
 
-    public void update(List<Block> blocks) {
+    public void update() {
         if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
             SoundManager.play(SoundsNames.WIN);
         }
         velocity.setZero();
         // Player itself
         handleKeyboardAndAnimation();
-        handleCollision(blocks);
+        handleCollision();
         setPosition(getX() + velocity.x * PLAYER_SPEED, getY() + velocity.y * PLAYER_SPEED);
         animationManagement();
 
@@ -110,10 +111,10 @@ public class Player extends CustomSprite {
         }
     }
 
-    private void handleCollision(List<Block> blocks) {
+    private void handleCollision() {
         this.setInScreen();
         if (!velocity.equals(Vector2.Zero)) {
-            blocks.forEach(block -> handleRectCollision(block.getBoundingRectangle()));
+            MapManager.MAP_CONFIG.getBlocks().forEach(block -> handleRectCollision(block.getBoundingRectangle()));
         }
     }
 

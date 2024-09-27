@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL11;
  */
 public class Lwjgl3Launcher {
     private static final int WIDTH = 64 * 10;
-    private static final int HEIGHT = 64 * 8;
+    private static final int HEIGHT = 64 * 9; // Add a header for the UI
 
 
     public static void main(String[] args) {

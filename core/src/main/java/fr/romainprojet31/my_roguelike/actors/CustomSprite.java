@@ -55,6 +55,7 @@ public class CustomSprite extends Sprite {
 
     public CustomSprite(String filePath) {
         super(loadTexture(filePath));
+        alive = true;
     }
 
     public void update() {
@@ -75,16 +76,21 @@ public class CustomSprite extends Sprite {
         return (frameIndex + 1) % animationFrames.length;
     }
 
+    /**
+     * Render only if alive
+     */
     public void render(SpriteBatch batch) {
-        if (alive) {
+        if (alive && currentFrame != null) {
             final Color lastBatchColor = batch.getColor();
             batch.setColor(getColor());
             batch.draw(currentFrame, getX(), getY(), getWidth(), getHeight());
             batch.setColor(lastBatchColor);
+        } else if (alive) {
+            draw(batch);
         }
     }
 
-    public void kill(){
+    public void kill() {
         alive = false;
     }
 
@@ -110,6 +116,6 @@ public class CustomSprite extends Sprite {
     }
 
     private static Texture loadTexture(String spriteName) {
-        return new Texture(Gdx.files.internal("sprites/"+spriteName));
+        return new Texture(Gdx.files.internal("sprites/" + spriteName));
     }
 }

@@ -7,7 +7,7 @@ import fr.romainprojet31.my_roguelike.actors.enemies.AEnemy;
 import fr.romainprojet31.my_roguelike.managers.MapManager;
 
 public class Sword extends CustomSprite {
-    private static final float ASSET_OFFSET = 40f;
+    public static final int SWORD_SIZE = 32;
     private int deg;
     private boolean attack;
 
@@ -16,7 +16,7 @@ public class Sword extends CustomSprite {
         super("WoodSword.png");
         deg = 0;
         attack = false;
-        setSize(16, 16);
+        setSize(SWORD_SIZE, SWORD_SIZE);
         getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 

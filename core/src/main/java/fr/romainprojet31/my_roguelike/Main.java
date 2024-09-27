@@ -19,6 +19,7 @@ import fr.romainprojet31.my_roguelike.ui.IUI;
  */
 public class Main extends ApplicationAdapter {
     public static final Vector2 SCREEN_SIZE = new Vector2(64 * 10, 64 * 8);
+    public static final int HEADER_SIZE = 64;
     private SpriteBatch batch;
     private MapConfig map;
     private OrthographicCamera camera;
@@ -29,7 +30,7 @@ public class Main extends ApplicationAdapter {
         camera = new OrthographicCamera();
         batch = new SpriteBatch();
 
-        camera.setToOrtho(false, SCREEN_SIZE.x, SCREEN_SIZE.y);
+        camera.setToOrtho(false, SCREEN_SIZE.x, SCREEN_SIZE.y + HEADER_SIZE);
 
     }
 
@@ -60,14 +61,14 @@ public class Main extends ApplicationAdapter {
 
     private void update() {
         handleNewMap();
-        map.getPlayer().update(map.getBlocks());
+        map.getPlayer().update();
 
         boolean wasOpened = map.getEnd().isOpened();
         map.getEnd().update(map.getPlayer());
         if (map.getEnd().isOpened() && !wasOpened) {
             map.getPlayer().setSuccessAnimation(true);
         } else if (!map.getPlayer().isSuccessAnimation()) {
-            map.getEnemies().forEach(AEnemy::update);
+           // map.getEnemies().stream().filter(AEnemy::isAlive).forEach(AEnemy::update);
         }
         map.getUis().forEach(IUI::update);
     }

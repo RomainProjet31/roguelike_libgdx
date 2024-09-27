@@ -17,17 +17,20 @@ public class PlayerLife implements IUI {
     public PlayerLife(Player player) {
         this.player = player;
         hpSprites = new CustomSprite[3];
-        float middle = (float) (Main.SCREEN_SIZE.x / 2.0);
+        float middle = (float) (Main.SCREEN_SIZE.x / 2.0) - 64f - 5;
         for (int i = 0; i < hpSprites.length; i++) {
             var hpSprite = new CustomSprite(heartPath);
-            hpSprite.setPosition(middle + i * 64, 10);
+            double posX = i * 64.0;
+            double offsetX = i * 5;
+            double posY = Main.SCREEN_SIZE.y + Main.HEADER_SIZE / 2.0;
+            hpSprite.setPosition((int) (middle + posX + offsetX), (int) posY);
             hpSprites[i] = hpSprite;
         }
     }
 
     @Override
     public void update() {
-        for (int i = player.getHp() - 1; i < hpSprites.length; i++) {
+        for (int i = player.getHp(); i < hpSprites.length; i++) {
             if (hpSprites[i].isAlive()) hpSprites[i].kill();
         }
     }
@@ -35,9 +38,7 @@ public class PlayerLife implements IUI {
     @Override
     public void render(SpriteBatch batch) {
         for (CustomSprite hp : hpSprites) {
-            if (hp.isAlive()) {
-                hp.render(batch);
-            }
+            hp.render(batch);
         }
     }
 }

@@ -22,11 +22,9 @@ public class MapUtils {
     }
 
     private static Node addPath(Node[][] grid, int i, int j, Vector2 end) {
-        System.out.println(i + " " + j);
         Node currentNode = grid[i][j];
         currentNode.setVisited(true); // In case of start
         if (currentNode.getIndexPosition().equals(end)){
-            System.out.println("HERE WE ARE");
             return currentNode;
         }
 
